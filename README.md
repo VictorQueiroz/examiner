@@ -2,6 +2,25 @@
 
 Validate your data however you want
 
+### Validating arrays
+```js
+import {Validator} from 'examiner';
+
+var user = {
+  documents: [{
+    name: 'My id 1'
+  }, {
+    name: 'My id 2'
+  }]
+};
+var validator = new Validator({
+  rules: {
+    'documents.$.name': 'required|min:10'
+  }
+});
+validator.validate(user);
+```
+
 ### With ReactJS
 ```jsx
 import _ from 'lodash';
