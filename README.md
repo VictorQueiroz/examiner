@@ -18,8 +18,11 @@ var validator = new Validator({
     'documents.$.name': 'required|min:10'
   },
   replaces: {
+    // the message will be like:
+    //  - The field "document name 4" is required
+    //  - The field "document name 4" need to have at least 10 characters
     'documents.$.name': function(i) {
-      return `Document name number ${i + 1} is invalid`;
+      return `document name ${i + 1}`;
     }
   }
 });
@@ -55,7 +58,7 @@ var AppIndex = React.createClass({
   },
   render: function() {
     return (
-      <div>
+      <form>
         {_.map(this.state.validator.messages, function(errors, fieldName) {
           return _.map(errors, function(message, rule) {
             return (
@@ -66,7 +69,10 @@ var AppIndex = React.createClass({
           });
         })}
         <input ref="userName" value={this.state.user.name} onChange={this.handleChange} />
-      </div>
+        <button disabled={this.state.validator.invalid} type="submit">
+          Send
+        </button>
+      </form>
     );
   }
 });
@@ -92,3 +98,5 @@ Validator.setFilter('special_filter', function(string) {
   return /[A-Z]+/.test(string);
 });
 ```
+
+Need more? Come and check [https://github.com/VictorQueiroz/examiner/tree/master/test](more examples)!
