@@ -255,6 +255,73 @@ describe('Validator', function() {
     });
   });
 
+  describe('validateRule()', function() {
+    var data = _.create(null),
+        errors = _.create(null),
+        replaces = _.create(null),
+        messages = _.create(null),
+        validateRule;
+
+    beforeEach(function() {
+      _.forEach([data, errors, messages], function(object) {
+        for(var key in object) {
+          delete object[key];
+        }
+      });
+
+      replaces['user.name'] = 'user name';
+      data.user = {
+        name: 'user name here'
+      }
+
+      validateRule = function(value) {
+        return validator.validateRule(value, 'user.name', messages, errors, data, replaces);
+      };
+    });
+
+    it('should throw when the filters are not an array or a string', function() {
+      _.forEach([null, undefined], function(value) {
+        assert.throws(function() {
+          validateRule(value);
+        }, /at key "user\.name"/);
+      });
+    });
+
+    it('should ignore the filter if the function call returns false', function() {
+      assert.throws(function() {
+        validateRule(function(data) {
+          return 'filter_test';
+        });
+      }, /"filter_test"/);
+      assert.doesNotThrow(function() {
+        validateRule(function() {
+          return false;
+        });
+      });
+    });
+
+    it('should return false if the function call returns a non valid result', function() {
+      assert.equal(false, validateRule(function() {
+        return false;
+      }));
+    });
+
+    it('should fill the "errors" and "messages" argument with the filter error message', function() {
+      validateRule('required|min:16');
+
+      assert.deepEqual(messages, {
+        'user.name': {
+          min: 'The field user name must have at least 16 characters'
+        }
+      });
+      assert.deepEqual(errors, {
+        'user.name': {
+          min: true
+        }
+      });
+    });
+  });
+
   describe('validate()', function() {
     it('should fill the "messages" instance property with the given messages presents in the validator store', function() {
       validator.update({
