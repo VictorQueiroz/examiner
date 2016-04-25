@@ -255,6 +255,38 @@ describe('Validator', function() {
     });
   });
 
+  describe('test()', function() {
+    var test,
+        errors = _.create(null),
+        messages = _.create(null);
+
+    beforeEach(function() {
+      for(var key in errors) {
+        delete errors[key];
+      }
+      test = function (value) {
+        validator.test(['filter_1'], errors, messages, value, 'key');
+      };
+    });
+
+    it('should throw when the rule is not defined', function() {
+      assert.throws(function() {
+        test('value');
+      }, /no defined rule check function for "filter_1"/);
+    });
+
+    it('should ignore other filters that are not "required" if the value is undefined or empty', function(){
+      assert.doesNotThrow(function() {
+        _.forEach(['', undefined], test);
+      });
+      _.forEach([0, 'a'], function(value) {
+        assert.throws(function() {
+          test(value);
+        }, /"filter_1"/);
+      });
+    });
+  });
+
   describe('validateRule()', function() {
     var data = _.create(null),
         errors = _.create(null),
