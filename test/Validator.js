@@ -87,6 +87,25 @@ describe('Validator', function() {
       toSearchRules.push.apply(toSearchRules, _.keys(validator.rules));
     });
 
+    it('should execute the function of the replace with the index of the current item if it is a function', function() {
+      validator.update({
+        replaces: {
+          'users.$.name': function(i) {
+            return `user name ${i}`;
+          }
+        }
+      });
+
+      var replaces = {};
+      validator.getToSearchKeys(toSearchRules, data, null, null, replaces);
+
+      assert.deepEqual(_.omit(replaces, ['users.$.name']), {
+        'users.0.name': 'user name 0',
+        'users.1.name': 'user name 1',
+        'users.2.name': 'user name 2'
+      });
+    });
+
     it('should list keys when a rule contains $', function() {
       assert.deepEqual(validator.getToSearchKeys(toSearchRules, data), [
         'users.0.name',
