@@ -16,6 +16,11 @@ var user = {
 var validator = new Validator({
   rules: {
     'documents.$.name': 'required|min:10'
+  },
+  replaces: {
+    'documents.$.name': function(i) {
+      return `Document name number ${i + 1} is invalid`;
+    }
   }
 });
 validator.validate(user);
