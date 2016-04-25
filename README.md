@@ -62,7 +62,7 @@ validator.setFilter('special_filter', function(string) {
 ```
 
 ### Global filters
-```
+```js
 var Validator = require('examiner').Validator;
 Validator.setFilter('special_filter', function(string) {
   return /[A-Z]+/.test(string);
