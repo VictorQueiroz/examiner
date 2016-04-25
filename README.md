@@ -99,4 +99,4 @@ Validator.setFilter('special_filter', function(string) {
 });
 ```
 
-Need more? Come and check [https://github.com/VictorQueiroz/examiner/tree/master/test](more examples)!
+Need more? Come and check [more examples](https://github.com/VictorQueiroz/examiner/tree/master/test)!
