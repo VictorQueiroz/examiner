@@ -2,6 +2,112 @@
 
 Validate your data however you want
 
+### Installation
+```
+npm install --save examiner
+```
+
+### Variable filters
+```js
+import {Validator} from 'examiner';
+
+var user = {
+  hasMessages: true,
+  messages: [
+    {body: 'message 1'},
+    {body: 'message 2'},
+    {body: 'message 3'}
+  ]
+};
+
+var validator = new Validator({
+  rules: {
+    'messages.$.body': function(data) {
+      return data.hasMessages ? 'required|min:10|string' : null;
+    }
+  }
+});
+validator.validate(user);
+```
+
+### Using presets
+
+Presets could be useful if you want to reuse validation *rules* or *replaces* into more than one Validator instance without need to rewrite anything.
+
+```js
+import {Validator} from 'examiner';
+
+Validator.setPreset('user_email_validation', {
+  rules: {
+    email: 'email|required|string'
+  }
+});
+
+var validator = new Validator({
+  rules: {
+    'name': 'required|string|min:10'
+  },
+  presets: ['user_email_validation']
+});
+
+validator.validate({
+  name: 'marshall mathers',
+  email: 'xxxxx@gmail.com'
+});
+```
+
+### Extending presets
+
+```js
+import _ from 'lodash';
+import {Validator} from 'examiner';
+
+Validator.setPreset('my_custom_preset', {
+  rules: {
+    'name': function(data) {
+      return data.shouldRequireName ? 'required|string' : null;
+    }
+  }
+});
+Validator.setPreset('another_cool_preset', {
+  rules: {
+    cool_rule: 'required|string'
+  }
+});
+
+var user = {
+  deep: {
+    name: 'john crockful'
+  }
+};
+
+var validator = new Validator({
+  presets: {
+    my_custom_preset: function(preset) {
+      return {
+        rules: _.mapKeys(preste.rules, function(value, key) {
+          return `deep.${key}`;
+        });
+      };
+    },
+    another_cool_preset: function(data) {
+      return false;
+    }
+  }
+});
+```
+
+The preset "my_custom_preset" will be extended to the following. But only internally at the time of the validation, the global preset will stay the same for other Validator instances:
+```js
+{
+  rules: {
+    'deep.name': function(data) {
+      return data.shouldRequiredName ? 'required|string' : null;
+    }
+  }
+}
+```
+
 ### Validating arrays
 ```js
 import {Validator} from 'examiner';
