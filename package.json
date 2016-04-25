@@ -1,0 +1,29 @@
+{
+  "name": "examiner",
+  "version": "1.0.0",
+  "description": "Validate your data however you want",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VictorQueiroz/examiner.git"
+  },
+  "keywords": [
+    "validation",
+    "validator"
+  ],
+  "author": "Victor Queiroz <victorcqueirozg@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VictorQueiroz/examiner/issues"
+  },
+  "homepage": "https://github.com/VictorQueiroz/examiner#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "lodash": "^4.11.1"
+  }
+}
