@@ -118,8 +118,7 @@ describe('Validator', function() {
       var nextRules = {};
       validator.getToSearchKeys(toSearchRules, data, null, nextRules);
 
-      assert.deepEqual(nextRules, {
-        'users.$.name': 'required|string',
+      assert.deepEqual(_.omit(nextRules, ['users.$.name']), {
         'users.0.name': 'required|string',
         'users.1.name': 'required|string',
         'users.2.name': 'required|string'
