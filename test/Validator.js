@@ -29,6 +29,33 @@ describe('Validator', function() {
         validator.setPreset('a');
       }, /Overriding preset "a"/);
     });
+
+    it('should define multiple presets when pass an object at the first argument', function() {
+      validator.setPreset({
+        a: {
+          rules: {
+            a1: 'required'
+          }
+        },
+        b: {
+          rules: {
+            a2: 'required'
+          }
+        }
+      });
+      assert.deepEqual(validator.getPresets(), {
+        a: {
+          rules: {
+            a1: 'required'
+          }
+        },
+        b: {
+          rules: {
+            a2: 'required'
+          }
+        }
+      });
+    });
   });
 
   describe('update()', function() {
