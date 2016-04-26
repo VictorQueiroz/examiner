@@ -85,7 +85,7 @@ var validator = new Validator({
   presets: {
     my_custom_preset: function(preset) {
       return {
-        rules: _.mapKeys(preste.rules, function(value, key) {
+        rules: _.mapKeys(preset.rules, function(value, key) {
           return `deep.${key}`;
         });
       };
