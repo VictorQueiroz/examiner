@@ -98,14 +98,6 @@ describe('Validator', function() {
         });
       });
     });
-
-    it('should not ignore array defined presets', function() {
-      assert.throws(function() {
-        validator.update({
-          presets: ['a']
-        });
-      }, /named "a"/);
-    });
   });
 
   describe('getToSearchKeys()', function() {
@@ -437,6 +429,78 @@ describe('Validator', function() {
       assert.deepEqual(validator.errors, {
         name: {
           min: true
+        }
+      });
+    });
+
+    it('should keep the validator rules free of the presets rules', function() {
+      validator.setPreset('a1', {
+        rules: {
+          b1: 'required|string'
+        }
+      });
+      validator.setPreset('a2', {
+        rules: {
+          a1: 'required|number'
+        }
+      });
+      validator.update({
+        rules: {
+          a3: 'required|string'
+        },
+        presets: {
+          a1: function() {
+            return true;
+          },
+          a2: function() {
+            return true;
+          }
+        }
+      });
+
+      validator.validate({
+        a1: 100,
+        b1: undefined,
+        a3: null
+      });
+
+      assert.deepEqual(validator.rules, {
+        a3: 'required|string'
+      });
+    });
+
+    it('should load array defined presets in validating time and keep the validator rules and replaces clean', function() {
+      validator.setPreset({
+          a2: {
+          rules: {
+            a2: 'required|string'
+          }
+        },
+        a3: {
+          rules: {
+            b1: 'required|string'
+          }
+        }
+      });
+
+      validator.update({
+        rules: {
+          a1: 'required|string'
+        },
+        presets: ['a2', 'a3']
+      });
+      validator.validate({
+        a1: 'a1 data',
+        a2: 'a2 data',
+        b1: 10
+      });
+
+      assert.deepEqual(validator.rules, {
+        a1: 'required|string'
+      });
+      assert.deepEqual(validator.errors, {
+        b1: {
+          string: true
         }
       });
     });
