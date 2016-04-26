@@ -53,6 +53,21 @@ describe('Validator', function() {
       }, /Overriding preset "a"/);
     });
 
+    it('should define a preset to the validator instance', function() {
+      validator.setPreset('a', {
+        rules: {
+          b: 'number'
+        }
+      });
+      assert.deepEqual(validator.getPresets(), {
+        a: {
+          rules: {
+            b: 'number'
+          }
+        }
+      });
+    });
+
     it('should define multiple presets when pass an object at the first argument', function() {
       validator.setPreset({
         a: {
