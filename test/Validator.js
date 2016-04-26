@@ -18,6 +18,29 @@ describe('Validator', function() {
     });
   });
 
+  describe('getPresets()', function() {
+    var presets;
+
+    beforeEach(function() {
+      presets = {
+        a: {
+          rules: {}
+        },
+        b: {
+          rules: {}
+        },
+        c: {
+          rules: {}
+        }
+      };
+    });
+    
+    it('should retrieve all the presets in the validator instance stores', function() {
+      validator.setPreset(presets);
+      assert.deepEqual(validator.getPresets(), presets);
+    });
+  });
+
   describe('setPreset()', function() {
     it('should throw when overriding existing preset', function() {
       validator.setPreset('a', {
