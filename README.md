@@ -97,7 +97,7 @@ var validator = new Validator({
 });
 ```
 
-The preset "my_custom_preset" will be extended to the following. But only internally at the time of the validation, the global preset will stay the same for other Validator instances:
+The preset `another_cool_preset` will be ignored for now since it returned as false, and `my_custom_preset` will be extended to the following. But only internally at the time of the validation, the global preset will stay the same for other Validator instances:
 ```js
 {
   rules: {
@@ -124,7 +124,7 @@ var validator = new Validator({
     'documents.$.name': 'required|min:10'
   },
   replaces: {
-    // the message will be like:
+    // the messages will be like:
     //  - The field "document name 4" is required
     //  - The field "document name 4" need to have at least 10 characters
     'documents.$.name': function(i) {
@@ -133,6 +133,25 @@ var validator = new Validator({
   }
 });
 validator.validate(user);
+```
+
+### Translating messages
+
+First you should make a copy of [lang/en/messages.js](https://github.com/VictorQueiroz/examiner/blob/master/lang/en/messages.js), change, and import the new one in your Validator instance:
+
+```js
+import {Validator} from 'examiner';
+
+var validator = new Validator();
+validator.update({
+  rules: {
+    'name': 'required|string'
+  }
+});
+validator.loadFromJSON(require('./lang/en-us/messages'));
+
+// Globally
+Validator.loadFromJSON(require('./lang/pt-br/messages'));
 ```
 
 ### With ReactJS
