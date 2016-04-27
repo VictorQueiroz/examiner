@@ -30,6 +30,24 @@ var validator = new Validator({
 validator.validate(user);
 ```
 
+You can use `Validator.rules` which works pretty like [classNames](https://github.com/JedWatson/classnames) module, and you can use like this for toggle specific filters in a rule while using the **variable filters feature**:
+
+```js
+import {Validator, rules} from 'examiner';
+
+// or just Validator.rules
+
+var validator = new Validator({
+  rules: {
+    name: function(data, validator) {
+      return rules('string', {
+        required: !validator.empty
+      });
+    }
+  }
+});
+```
+
 ### Using presets
 
 Presets could be useful if you want to reuse validation *rules* or *replaces* into more than one Validator instance without need to rewrite anything.
@@ -106,6 +124,28 @@ The preset `another_cool_preset` will be ignored for now since it returned as fa
     }
   }
 }
+```
+
+There are still some helper functions at the constructor of `Validator`, like `Validator.transformPreset` which can be used to add a prefix in front of the preset `keys` and `replaces`:
+
+```js
+Validator.setPreset({
+  userDocuments: {
+    rules: {
+      validUntil: 'date|required',
+      description: 'string|required',
+      photo: 'url|required'
+    }
+  }
+});
+
+var validator = new Validator({
+  presets: {
+    userDocuments: function(preset) {
+      return Validator.transformPreset(preset, {prefix: 'documents.$.'});
+    }
+  }
+});
 ```
 
 ### Validating arrays
