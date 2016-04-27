@@ -149,6 +149,9 @@ var validator = new Validator({
 ```
 
 ### Validating arrays
+
+What really happens here is when you have a expression that contain a $ between two dots like `user.messages.$.name` it searchs into the given data and generate temporary `rules` and `replaces` according to the array of your data.
+
 ```js
 import {Validator} from 'examiner';
 
@@ -175,6 +178,23 @@ var validator = new Validator({
 validator.validate(user);
 ```
 
+Internally the validator has been created the following `rules` and `replaces` to validate your data:
+
+```js
+{
+  rules: {
+    'documents.0.name': 'required|min:10',
+    'documents.1.name': 'required|min:10'
+  },
+  replaces: {
+    'documents.0.name': 'document name 1',
+    'documents.1.name': 'document name 2'
+  }
+}
+```
+
+Let's not forgot that when you're creating a dot expression with a `$`, your `replace` for that expression can and should carry a function which will be executed and the first argument will always be the `index` of the current array item. And before you can ask, there is no limit for how many `$` you can put in a simple dot expression.
+
 ### Translating messages
 
 First you should make a copy of [lang/en/messages.js](https://github.com/VictorQueiroz/examiner/blob/master/lang/en/messages.js), change, and import the new one in your Validator instance:
@@ -194,7 +214,7 @@ validator.loadFromJSON(require('./lang/en-us/messages'));
 Validator.loadFromJSON(require('./lang/pt-br/messages'));
 ```
 
-### With ReactJS
+### Using with ReactJS
 ```jsx
 import _ from 'lodash';
 import React from 'react';
