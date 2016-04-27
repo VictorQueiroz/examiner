@@ -11,6 +11,63 @@ describe('Validator', function() {
   });
 
   describe('constructor()', function() {
+    describe('rules()', function() {
+      var rules = Validator.rules;
+
+      it('should deal with strings', function() {
+        assert.equal('a|b|c', rules('a', 'b', 'c'));
+      });
+
+      it('should deal with objects', function() {
+        assert.equal('a|b|c', rules('a', {
+          b: true,
+          c: true
+        }));
+      });
+    });
+
+    describe('transformPreset()', function() {
+      var preset = {},
+          transformPreset = Validator.transformPreset;
+
+      beforeEach(function() {
+        _.extend(preset, {
+          rules: {
+            a: 'email|string|required'
+          },
+          replaces: {
+            a: 'A little preset'
+          }
+        });
+      });
+
+      it('should add prefix to the keys', function() {
+        assert.deepEqual(transformPreset(preset, { prefix: 'prefix.' }), {
+          rules: {
+            'prefix.a': 'email|string|required'
+          },
+          replaces: {
+            'prefix.a': 'A little preset'
+          }
+        });
+      });
+
+      it('should deal if the prefix option is in fact a function', function() {
+        var transformedPreset = transformPreset(preset, function(value, key) {
+          return `prefix.${key}`;
+        });
+
+        assert.deepEqual(transformedPreset, {
+          rules: {
+            'prefix.a': 'email|string|required'
+          },
+          replaces: {
+            'prefix.a': 'A little preset'
+          }
+        });
+      });
+    });
+
     describe('setPreset()', function() {
       var stores = Validator.defaults.stores,
           presets = stores.presets;
