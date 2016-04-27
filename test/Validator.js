@@ -276,6 +276,36 @@ describe('Validator', function() {
         'users.2.name': 'User name attribute'
       });
     });
+
+    it('should find deep $ expressions', function() {
+      data.deep = {
+        a1: [{
+          b: [{
+            c: [{
+              a: null
+            }]
+          }]
+        }],
+        a2: [{
+          b: {
+            'special-1': {
+              c: [{
+                a: null
+              }]
+            },
+            'special-2': {
+              c: [{
+                a: null
+              }]
+            }
+          }
+        }]
+      };
+      assert.deepEqual(validator.getToSearchKeys(['deep.$'], data), [
+        'deep.a1',
+        'deep.a2'
+      ]);
+    });
   });
 
   describe('updateData()', function() {
