@@ -10,6 +10,32 @@ describe('Validator', function() {
     validator.loadFromJSON(require('../lang/en/messages'));
   });
 
+  describe('constructor()', function() {
+    describe('setPreset()', function() {
+      var stores = Validator.defaults.stores,
+          presets = stores.presets;
+
+      afterEach(function() {
+        _.forEach(presets, function(value, key) {
+          delete presets[key];
+        });
+      });
+
+      it('should define multiple presets on the global defaults variable', function() {
+        Validator.setPreset({
+          e: {
+            rules: {}
+          }
+        });
+        assert.deepEqual(presets, {
+          e: {
+            rules: {}
+          }
+        });
+      });
+    });
+  });
+
   describe('getPreset()', function() {
     it('should throw when try to get a non existent preset', function() {
       assert.throws(function() {
