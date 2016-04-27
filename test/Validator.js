@@ -1,4 +1,5 @@
 var _ = require('lodash'),
+    sinon = require('sinon'),
     assert = require('assert'),
     Validator = require('../lib/Validator');
 
@@ -474,6 +475,29 @@ describe('Validator', function() {
           test(value);
         }, /"filter_1"/);
       });
+    });
+
+    it('should execute filters with the given arguments since the attribute value be on the first argument', function() {
+      var filterFn = sinon.spy();
+
+      validator.update({
+        stores: {
+          filters: {
+            special_filter: filterFn
+          }
+        },
+        rules: {
+          'special_field.deep_property': 'special_filter:1,2,3'
+        }
+      });
+
+      validator.validate({
+        special_field: {
+          deep_property: 'data'
+        }
+      });
+
+      assert.ok(filterFn.calledWith('data', '1', '2', '3'));
     });
   });
 

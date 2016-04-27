@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/VictorQueiroz/examiner#readme",
   "devDependencies": {
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "sinon": "^1.17.3"
   },
   "dependencies": {
     "lodash": "^4.11.1"
