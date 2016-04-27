@@ -277,6 +277,27 @@ describe('Validator', function() {
       });
     });
 
+    it('should search into defined object lists', function() {
+      assert.deepEqual(validator.getToSearchKeys(['object.$.title'], data), [
+        'object.0.title',
+        'object.1.title',
+        'object.2.title'
+      ]);
+    });
+
+    it('should not ignore special keys while using $ on objects', function() {
+      data.object['special-key'] = {
+        title: null
+      };
+
+      assert.deepEqual(validator.getToSearchKeys(['object.$.title'], data), [
+        'object.0.title',
+        'object.1.title',
+        'object.2.title',
+        'object.special-key.title'
+      ]);
+    });
+
     it('should find deep $ expressions', function() {
       data.deep = {
         a1: [{
