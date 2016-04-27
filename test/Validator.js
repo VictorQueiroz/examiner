@@ -214,7 +214,18 @@ describe('Validator', function() {
           name: 'User 2'
         }, {
           name: 'User 3'
-        }]
+        }],
+        object: {
+          0: {
+            title: 'item 1'
+          },
+          1: {
+            title: 'item 2'
+          },
+          2: {
+            title: 'item 3'
+          }
+        }
       });
       validator.update({
         rules: {
@@ -323,9 +334,19 @@ describe('Validator', function() {
           }
         }]
       };
+      assert.deepEqual(validator.getToSearchKeys(['deep.$.$.b.$.c.$.a'], data), [
+        'deep.a1.0.b.0.c.0.a',
+        'deep.a2.0.b.special-1.c.0.a',
+        'deep.a2.0.b.special-2.c.0.a',
+      ]);
+
       assert.deepEqual(validator.getToSearchKeys(['deep.$'], data), [
         'deep.a1',
         'deep.a2'
+      ]);
+      assert.deepEqual(validator.getToSearchKeys(['deep.$.$'], data), [
+        'deep.a1.0',
+        'deep.a2.0'
       ]);
     });
   });
