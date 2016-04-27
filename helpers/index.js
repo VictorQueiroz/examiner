@@ -1,14 +1,7 @@
-var _ = require('lodash'),
-    fs = require('fs'),
-    path = require('path'),
-    modules = {};
+var rules = require('./rules'),
+    transformPreset = require('./transform_preset');
 
-fs.readdirSync(__dirname).filter(function(file) {
-  return file !== __filename;
-})
-.forEach(function(file) {
-  var name = _.camelCase(file.replace(/\.js$/, ''));
-  modules[name] = require(path.resolve(__dirname, file));
-});
-
-module.exports = modules;
+module.exports = {
+  rules: rules,
+  transformPreset: transformPreset
+};
