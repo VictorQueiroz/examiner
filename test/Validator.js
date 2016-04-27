@@ -677,6 +677,30 @@ describe('Validator', function() {
         }
       });
     });
+
+    it('should validate rules with complex $ dotted expressions', function() {
+      validator.update({
+        rules: {
+          'documents.$.name': 'required|string'
+        }
+      });
+      validator.validate({
+        documents: {
+          'special-key-1': {
+            name: null
+          },
+          'special-key-2': {
+            name: 'document 2'
+          }
+        }
+      });
+      assert.deepEqual(validator.errors, {
+        'documents.special-key-1.name': {
+          required: true,
+          string: true
+        }
+      });
+    });
   });
 
   describe('loadFromJSON()', function() {
