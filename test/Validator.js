@@ -701,6 +701,26 @@ describe('Validator', function() {
         }
       });
     });
+
+    it('should throw if a non defined preset is requested', function() {
+      assert.throws(function() {
+        validator.update({
+          presets: ['my_awesome_preset_1']
+        });
+        validator.validate();
+      }, /my_awesome_preset_1 not found/);
+
+      assert.throws(function(){
+        validator.update({
+          presets: {
+            my_awesome_preset_2: function() {
+              return true;
+            }
+          }
+        });
+        validator.validate();
+      }, /my_awesome_preset_2 not found/);
+    });
   });
 
   describe('loadFromJSON()', function() {
