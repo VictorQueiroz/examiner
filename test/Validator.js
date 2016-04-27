@@ -699,6 +699,29 @@ describe('Validator', function() {
       });
     });
 
+    it('should automatically create "rules" property if none is defined while using only presets', function() {
+      Validator.setPreset('preset-1', {
+        rules: {
+          a1: 'required|string',
+          a2: 'string|required'
+        }
+      });
+
+      validator = new Validator({
+        presets: ['preset-1']
+      });
+      validator.validate(null);
+
+      assert.deepEqual(validator.errors, {
+        a1: {
+          required: true
+        },
+        a2: {
+          required: true
+        }
+      });
+    });
+
     it('should validate rules with complex $ dotted expressions', function() {
       validator.update({
         rules: {
