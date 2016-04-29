@@ -116,6 +116,7 @@ var validator = new Validator({
 ```
 
 The preset `another_cool_preset` will be ignored for now since it returned as false, and `my_custom_preset` will be extended to the following. But only internally at the time of the validation, the global preset will stay the same for other Validator instances:
+
 ```js
 {
   rules: {
@@ -191,6 +192,25 @@ Internally the validator has been created the following `rules` and `replaces` t
     'documents.1.name': 'document name 2'
   }
 }
+```
+
+While using `$` on expressions, all the rules are generated based on the `data` passed to `validator.validate` function. So when searching for deep keys, you cannot provide `undefined` properties. The following example **WILL NOT WORK**:
+
+```js
+var validator = new Validator({
+  rules: {
+    'phonenumbers.$': 'required|string|size:9'
+  }
+});
+validator.validate();
+```
+
+The correct way to call `validator.validate` is:
+
+```
+validator.validate({
+  phonenumbers: new Array(10)
+});
 ```
 
 Let's not forgot that when you're creating a dot expression with a `$`, your `replace` for that expression can and should carry a function which will be executed and the first argument will always be the `index` of the current array item. And before you can ask, there is no limit for how many `$` you can put in a simple dot expression.
