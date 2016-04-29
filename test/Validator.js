@@ -239,6 +239,31 @@ describe('Validator', function() {
       toSearchRules.push.apply(toSearchRules, _.keys(validator.rules));
     });
 
+    it('should throw when trying to make a deep search on a non array data', function() {
+      assert.throws(function() {
+        validator.getToSearchKeys(['list.$.another-list.$'], {
+          list: {
+            a1: {
+            },
+            a2: {
+            }
+          }
+        });
+      }, /The path "list.a1.another-list"/);
+    });
+
+    it('should look into deep empty arrays', function() {
+      assert.deepEqual(validator.getToSearchKeys(['list.$'], {
+        list: new Array(5)
+      }), [
+        'list.0',
+        'list.1',
+        'list.2',
+        'list.3',
+        'list.4'
+      ]);
+    });
+
     it('should execute the function of the replace with the index of the current item if it is a function', function() {
       validator.update({
         replaces: {
@@ -282,7 +307,6 @@ describe('Validator', function() {
       validator.getToSearchKeys(toSearchRules, data, null, null, nextReplaces);
 
       assert.deepEqual(nextReplaces, {
-        'users.$.name': 'User name attribute',
         'users.0.name': 'User name attribute',
         'users.1.name': 'User name attribute',
         'users.2.name': 'User name attribute'
