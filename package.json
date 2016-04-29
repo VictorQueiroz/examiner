@@ -1,6 +1,6 @@
 {
   "name": "examiner",
-  "version": "1.0.4",
+  "version": "1.0.42",
   "description": "Validate your data however you want",
   "main": "index.js",
   "scripts": {
