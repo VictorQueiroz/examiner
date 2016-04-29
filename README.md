@@ -1,4 +1,4 @@
-# examiner
+# examiner [![Build Status](https://travis-ci.org/VictorQueiroz/examiner.svg?branch=master)](https://travis-ci.org/VictorQueiroz/examiner);
 
 Validate your data however you want
 

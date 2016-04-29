@@ -358,6 +358,7 @@ describe('Validator', function() {
           }
         }]
       };
+
       assert.deepEqual(validator.getToSearchKeys(['deep.$.$.b.$.c.$.a'], data), [
         'deep.a1.0.b.0.c.0.a',
         'deep.a2.0.b.special-1.c.0.a',
@@ -406,6 +407,7 @@ describe('Validator', function() {
         }
       }
     };
+
     var rules = _.create(null),
         replaces = _.create(null);
 
