@@ -16345,10 +16345,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Validator.prototype.test = function test(filters, errors, messages, value, key) {
+	    var _this2 = this;
+
 	    var i,
 	        name,
 	        args = [],
-	        match;
+	        match,
+	        promises = [];
 
 	    for (i = 0; i < filters.length; i++) {
 	      args.splice(0, args.length);
@@ -16371,17 +16374,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	          continue;
 	        }
 	      }
-	      if (this.hasFilter(name)) {
-	        if (this.runFilter(name, args)) {
-	          continue;
-	        }
-	      } else {
+
+	      if (!this.hasFilter(name)) {
 	        throw new Error('no defined rule check function for "' + name + '"');
 	      }
 
-	      this.message(name, messages, args.slice(1), value, key);
-	      errors[name] = true;
+	      var result = this.runFilter(name, args);
+
+	      if (this.isPromise(result)) {
+	        promises[i] = result.catch(function (error) {
+	          _this2.fail(name, messages, args, value, key, errors);
+	          return error;
+	        });
+	        continue;
+	      }
+
+	      if (result) {
+	        continue;
+	      }
+
+	      this.fail(name, messages, args, value, key, errors);
 	    }
+
+	    if (!promises.length) {
+	      return false;
+	    }
+
+	    return Promise.all(promises);
+	  };
+
+	  Validator.prototype.fail = function fail(name, messages, args, value, key, errors) {
+	    this.message(name, messages, args.slice(1), value, key);
+	    errors[name] = true;
 	  };
 
 	  Validator.prototype.hasMessage = function hasMessage(name) {
@@ -16445,11 +16469,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Validator.prototype.setPreset = function setPreset(name, value) {
-	    var _this2 = this;
+	    var _this3 = this;
 
 	    if (_.isObject(name)) {
 	      return _.forEach(name, function (preset, name) {
-	        return _this2.setPreset(name, preset);
+	        return _this3.setPreset(name, preset);
 	      });
 	    }
 
@@ -16567,7 +16591,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            results.push(toSearchPath + '.' + key + lastConcat);
 	          });
 	        } else {
-	          throw new Error('The path "' + toSearchPath + '" was not found in the provided data. \n            You need to create the entire path if you want to use deep keys, \n            please read the README at: \n            https://github.com/VictorQueiroz/examiner/blob/master/README.md');
+	          throw new Error('The path "' + toSearchPath + '" was not found in the provided data.\n            You need to create the entire path if you want to use deep keys,\n            please read the README at:\n            https://github.com/VictorQueiroz/examiner/blob/master/README.md');
 	        }
 
 	        toSearchPaths.push(toSearchPath);
@@ -16584,7 +16608,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Validator.prototype.getToSearchKeys = function getToSearchKeys(ignoreKeys, data, toSearchKeys, rules, replaces) {
-	    var _this3 = this;
+	    var _this4 = this;
 
 	    toSearchKeys = toSearchKeys || [];
 
@@ -16596,7 +16620,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var sources = [];
 	      sources.push(originalKey);
 
-	      _.forEach(_this3.resolveComplexKeys(sources, data), function (key, i) {
+	      _.forEach(_this4.resolveComplexKeys(sources, data), function (key, i) {
 	        if (rules) {
 	          if (storeRules.hasOwnProperty(originalKey)) {
 	            possiblyFn = storeRules[originalKey];
@@ -16617,7 +16641,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  Validator.prototype.validate = function validate(data) {
-	    var _this4 = this;
+	    var _this5 = this;
 
 	    var errors = {},
 	        messages = {};
@@ -16633,7 +16657,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // check for not defined presets
 	    _.forEach(_.isArray(presets) ? presets : _.keys(presets), function (name) {
-	      if (!_this4.hasPreset(name)) {
+	      if (!_this5.hasPreset(name)) {
 	        throw new Error('Requested preset named ' + name + ' not found');
 	      }
 	    });
@@ -16657,21 +16681,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 
 	    var toSearchKeys = [];
+
 	    this.getToSearchKeys(ignore_keys, data, toSearchKeys, rules, replaces);
 
-	    _(rules).omit(ignore_keys).mapValues(function (filterData, key) {
+	    var promisesChain = _(rules).omit(ignore_keys).mapValues(function (filterData, key) {
 	      var value = _.get(data, key);
-	      _this4.updateData(key, value);
+	      _this5.updateData(key, value);
 
 	      return filterData;
 	    }).mapValues(function (filterData) {
-	      _this4.isFormEmpty();
+	      _this5.isFormEmpty();
 	      return filterData;
-	    }).forEach(function (filterData, key) {
-	      _this4.validateRule(filterData, key, messages, errors, data, replaces);
+	    }).map(function (filterData, key) {
+	      return _this5.validateRule(filterData, key, messages, errors, data, replaces);
 	    });
 
-	    if (_.keys(errors).length > 0) {
+	    var promises = promisesChain.value();
+	    var hasPromise = promises.some(function (promise) {
+	      return _.isObject(promise) && promise.then;
+	    });
+
+	    if (hasPromise) {
+	      return Promise.all(promises).then(function () {
+	        _this5.updateErrors(data, errors, messages);
+	      });
+	    }
+
+	    this.updateErrors(data, errors, messages);
+	  };
+
+	  Validator.prototype.updateErrors = function updateErrors(data, errors, messages) {
+	    var errorsLength = _.size(errors);
+
+	    if (errorsLength > 0) {
 	      this.errors = errors;
 	      this.messages = messages;
 	    } else {
@@ -16682,7 +16724,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.oldData = _.clone(data);
 	  };
 
+	  Validator.prototype.isPromise = function isPromise(value) {
+	    return _.isObject(value) && value.then;
+	  };
+
 	  Validator.prototype.validateRule = function validateRule(filterData, key, messages, errors, data, replaces) {
+	    var _this6 = this;
+
 	    var value = _.get(data, key),
 	        found = {},
 	        filters,
@@ -16709,10 +16757,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // transforms "user.company.name" to "Company Name"
 	    var transformed_key = replaces.hasOwnProperty(key) ? replaces[key] : key;
-	    this.test(filters, found, found_messages, value, transformed_key);
+
+	    var result = this.test(filters, found, found_messages, value, transformed_key);
+
+	    if (this.isPromise(result)) {
+	      return result.then(function (data) {
+	        _this6.updateValidateData(errors, messages, key, found, found_messages);
+
+	        return data;
+	      });
+	    }
+
+	    this.updateValidateData(errors, messages, key, found, found_messages);
+
+	    return result;
+	  };
+
+	  Validator.prototype.updateValidateData = function updateValidateData(errors, messages, key, found, found_messages) {
+	    var foundLength = _.size(found);
 
 	    // if found any error, store
-	    if (_.keys(found).length > 0) {
+	    if (foundLength > 0) {
 	      errors[key] = found;
 	      messages[key] = found_messages;
 	    }

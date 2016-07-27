@@ -118,7 +118,7 @@ describe('Validator', function() {
         }
       };
     });
-    
+
     it('should retrieve all the presets in the validator instance stores', function() {
       validator.setPreset(presets);
       assert.deepEqual(validator.getPresets(), presets);
@@ -790,6 +790,40 @@ describe('Validator', function() {
         });
         validator.validate();
       }, /my_awesome_preset_2 not found/);
+    });
+
+    it('should support async rules', function(done) {
+      validator.setFilter('async_rule', function(value) {
+        return new Promise(function(resolve, reject) {
+          setTimeout(() => {
+            if(value > 100) {
+              resolve();
+            } else {
+              reject();
+            }
+          });
+        });
+      });
+      validator.setMessage('async_rule', function() {
+        return 'This is an async message';
+      });
+      validator.update({
+        rules: {
+          test: 'required|async_rule'
+        }
+      });
+
+      validator
+        .validate({ test: 100 })
+        .then(function() {
+          assert.deepEqual(validator.messages, {
+            test: {
+              async_rule: 'This is an async message'
+            }
+          });
+          done();
+        })
+        .catch(done);
     });
   });
 
